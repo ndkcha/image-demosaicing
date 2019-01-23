@@ -7,3 +7,18 @@ I have referred to the official documentation from openCV to get to know about t
 To run the program,
 I have used command line interface with the command.
  > python3 demosaic.py
+
+I have also tried several more filters to go ahead with, but I didn't get better results on the second with them.
+Some of the filters I've tried,
+
+blue = np.array([[1.5, 0, 1.5], [0, 0, 0], [1.5, 0, 1.5]]) / 4
+green = np.array([[0, 0, 0], [0, 2.5, 0], [0, 0, 0]]) / 2
+red = np.array([[0, 1.5, 0], [1.5, 0, 1.5], [0, 1.5, 0]]) / 5
+
+blue = np.array([[0, 0, 0], [0, 1, 0], [0, 0, 0]]) / 1
+green = np.array([[0, 0, 0], [0, 1, 0], [0, 0, 0]]) / 4
+red = np.array([[1, 0, 1], [0, 1, 0], [1, 0, 1]]) / 1
+
+blue = np.array([[2, 0, 2], [0, 0, 0], [2, 0, 2]]) / 5
+green = np.array([[0, 0, 0], [0, 4, 0], [0, 0, 0]]) / 2
+red = np.array([[0, 2, 0], [2, 0, 2], [0, 2, 0]]) / 8
