@@ -44,8 +44,8 @@ new_blue, new_green, new_red = cv2.split(part_one_image)
 green_red = new_green - new_red
 blue_red = new_blue - new_red
 
-green_red = cv2.medianBlur(green_red, 3)
-blue_red = cv2.medianBlur(blue_red, 3)
+green_red = cv2.medianBlur(green_red, 1)
+blue_red = cv2.medianBlur(blue_red, 1)
 
 green_red = green_red + new_red
 blue_red = blue_red + new_red
