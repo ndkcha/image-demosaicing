@@ -1,59 +1,97 @@
 import cv2
 import numpy as np
 
-img = cv2.imread("images/oldwell_mosaic.bmp")
-b, g, r = cv2.split(img)
 
-height = img.shape[1]
-width = img.shape[0]
+def main():
+    img = cv2.imread("images/oldwell_mosaic.bmp")
+    org = cv2.imread("images/oldwell.jpg")
+    b, g, r = cv2.split(img)
+    b_o, g_o, r_o = cv2.split(org)
+    shape = get_shape(img)
+    b_org, blue = prepare_channel(0, b, shape)
+    g_org, green = prepare_channel(1, g, shape)
+    r_org, red = prepare_channel(2, r, shape)
 
-mask_blue = np.zeros((width, height), dtype=np.uint8)
-mask_blue[:, ::2] = 1
-mask_blue[1::2] = 0
+    final_img = cv2.merge((blue, green, red))
+    squared_img = display_squared_values(b_o, g_o, r_o, blue, green, red)
+    freeman_img = bill_freeman(blue, green, red)
 
-kernel_blue = np.array([[1, 1, 1], [1, 1, 1], [1, 1, 1]]) / 3
-after_mask_blue = cv2.bitwise_and(b, b, mask=mask_blue)
-filtered_blue = cv2.filter2D(after_mask_blue, -1, kernel_blue)
+    numpy_horizontal_concat = np.concatenate((img, final_img), axis=1)
+    cv2.imshow("masked", numpy_horizontal_concat)
+    cv2.imshow("root squared", squared_img)
+    cv2.imshow("freeman", freeman_img)
+    cv2.waitKey()
 
-mask_green = np.zeros((width, height), dtype=np.uint8)
-mask_green[1::2, 1::2] = 1
 
-kernel_green = np.array([[1, 1, 1], [1, 1, 1], [1, 1, 1]]) / 3
-after_mask_green = cv2.bitwise_and(g, g, mask=mask_green)
-filtered_green = cv2.filter2D(after_mask_green, -1, kernel_green)
+def bill_freeman(blue, green, red):
+    g_r = green - red
+    b_r = blue - red
 
-mask_red = np.zeros((width, height), dtype=np.uint8)
-mask_red[:, 1::2] = 1
-mask_red[1::2] = 0
-mask_red[1::2, ::2] = 1
+    g_r = cv2.medianBlur(g_r, 1)
+    b_r = cv2.medianBlur(b_r, 1)
 
-kernel_red = np.array([[1, 1, 1], [1, 1, 1], [1, 1, 1]]) / 6
-after_mask_red = cv2.bitwise_and(r, r, mask=mask_red)
-filtered_red = cv2.filter2D(after_mask_red, -1, kernel_red)
+    g_r = g_r + red
+    b_r = b_r + red
 
-part_one_image = cv2.merge((filtered_blue, filtered_green, filtered_red))
+    final_img = cv2.merge((b_r, g_r, red))
+    return final_img
 
-sqrt_blue = np.sqrt(np.square(after_mask_blue - filtered_blue))
-sqrt_green = np.sqrt(np.square(after_mask_green - filtered_green))
-sqrt_red = np.sqrt(np.square(after_mask_red - filtered_red))
 
-difference_image = np.array(sqrt_blue + sqrt_green + sqrt_red).astype(np.uint8)
+def display_squared_values(b_org, g_org, r_org, blue, green, red):
+    b_sq = calculate_squared(b_org, blue)
+    g_sq = calculate_squared(g_org, green)
+    r_sq = calculate_squared(r_org, red)
 
-new_blue, new_green, new_red = cv2.split(part_one_image)
+    square_image = np.array(b_sq + g_sq + r_sq).astype(np.uint8)
+    return square_image
 
-green_red = new_green - new_red
-blue_red = new_blue - new_red
 
-green_red = cv2.medianBlur(green_red, 1)
-blue_red = cv2.medianBlur(blue_red, 1)
+def calculate_squared(org, out):
+    return np.sqrt(np.square(org) - np.square(out))
 
-green_red = green_red + new_red
-blue_red = blue_red + new_red
 
-free_man = cv2.merge((blue_red, green_red, new_red))
+def get_shape(img):
+    height = img.shape[1]
+    width = img.shape[0]
 
-do_images = np.concatenate((img, part_one_image), axis=1)
-cv2.imshow("part one", do_images)
-cv2.imshow("difference", difference_image)
-cv2.imshow("freeman", free_man)
-cv2.waitKey()
+    return width, height
+
+
+def calculate_difference(a, b):
+    return a - b
+
+
+# see the filter document to know the right one
+def get_kernel():
+    b_kernel = np.ones((5, 5), np.uint8) / 6
+    g_kernel = np.ones((5, 5), np.uint8) / 6
+    r_kernel = np.ones((5, 5), np.uint8) / 12
+
+    return b_kernel, g_kernel, r_kernel
+
+
+def fetch_mask(shape):
+    b_mask = np.zeros(shape, dtype=np.uint8)
+    b_mask[:, ::2] = 1
+    b_mask[1::2] = 0
+
+    g_mask = np.zeros(shape, dtype=np.uint8)
+    g_mask[1::2, 1::2] = 1
+
+    r_mask = np.zeros(shape, dtype=np.uint8)
+    r_mask[:, 1::2] = 1
+    r_mask[1::2] = 0
+    r_mask[1::2, ::2] = 1
+
+    return b_mask, g_mask, r_mask
+
+
+def prepare_channel(channel_index, channel_matrix, shape):
+    channel = cv2.bitwise_and(channel_matrix, channel_matrix, mask=fetch_mask(shape)[channel_index])
+    filtered = cv2.filter2D(channel, -1, get_kernel()[channel_index])
+
+    return channel, filtered
+
+
+if __name__ == '__main__':
+    main()

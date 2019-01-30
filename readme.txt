@@ -19,6 +19,7 @@ blue = np.array([[0, 0, 0], [0, 1, 0], [0, 0, 0]]) / 1
 green = np.array([[0, 0, 0], [0, 1, 0], [0, 0, 0]]) / 4
 red = np.array([[1, 0, 1], [0, 1, 0], [1, 0, 1]]) / 1
 
-blue = np.array([[2, 0, 2], [0, 0, 0], [2, 0, 2]]) / 5
-green = np.array([[0, 0, 0], [0, 4, 0], [0, 0, 0]]) / 2
-red = np.array([[0, 2, 0], [2, 0, 2], [0, 2, 0]]) / 8
+# one of the possible filters (can be sharpened)
+blue = np.array([[2, 0, 2], [0, 0, 0], [2, 0, 2]]) / 3
+green = np.array([[0, 0, 0], [0, 4, 0], [0, 0, 0]]) / 3
+red = np.array([[0, 2, 0], [2, 0, 2], [0, 2, 0]]) / 6
